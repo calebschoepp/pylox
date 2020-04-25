@@ -19,9 +19,9 @@ class Lox():
     @staticmethod
     def run_file(path):
         with open(path, 'r') as script:
-            Lox.run(script)
+            Lox.run(script.read())
 
-            if had_error:
+            if Lox.had_error:
                 sys.exit(65)
 
     @staticmethod
@@ -29,7 +29,7 @@ class Lox():
         while True:
             print("> ", end="")
             Lox.run(input())
-            had_error = False
+            Lox.had_error = False
 
     @staticmethod
     def run(source):

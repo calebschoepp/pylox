@@ -1,6 +1,6 @@
 from token_type import TT
 from token import Token
-import lox
+from lox import Lox
 
 keywords = {                                
     "and":    TT.AND,
@@ -75,6 +75,8 @@ class Scanner():
             if self.match('/'):
                 while self.peek() != '\n' and not self.is_at_end():
                     self.advance()
+            elif self.match('*'):
+                self.block_comment()
             else:
                 self.add_token(TT.SLASH, None)
         elif c in [' ', '\r', '\t']:
@@ -88,7 +90,7 @@ class Scanner():
         elif self.is_alpha(c):
             self.identifier()
         else:
-            lox.Lox.error(self.line, "Unexpected character.")
+            Lox.error(self.line, "Unexpected character.")
 
     def identifier(self):
         while self.is_alpha_numeric(self.peek()):
@@ -124,7 +126,7 @@ class Scanner():
 
         # Unterminated string
         if self.is_at_end():
-            lox.Lox.error(self.line, "Unterminated string.")
+            Lox.error(self.line, "Unterminated string.")
             return
         
         # Closing "
@@ -133,6 +135,25 @@ class Scanner():
         # Trim the surrounding quotes off
         value = self.source[self.start + 1:self.current - 1]
         self.add_token(TT.STRING, value)
+
+    def block_comment(self):
+        while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
+            if self.peek() == '\n':
+                self.line += 1
+            self.advance()
+
+        # Unterminated block comment
+        if self.is_at_end():
+            Lox.error(self.line, "Unterminated block comment.")
+
+        if self.peek() != '*' or self.peek_next() != '/':
+            print("in here")
+            Lox.error(self.line, "Unterminated block comment.")
+
+        # Closing */
+        self.advance()
+        self.advance()
+
 
     def match(self, expected):
         if self.is_at_end():
