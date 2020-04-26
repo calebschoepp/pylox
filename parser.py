@@ -1,5 +1,6 @@
 from token_type import TT
 import Expr
+import Stmt
 
 class Parser():
     def __init__(self, tokens):
@@ -7,13 +8,75 @@ class Parser():
         self.current = 0
 
     def parse(self):
+        statements = []
+        while not self.is_at_end():
+            statements.append(self.declaration())
+        return statements
+
+    def declaration(self):
         try:
-            return self.expression()
-        except ParseError:
+            if self.match(TT.VAR):
+                return self.var_declaration()
+
+            return self.statement()
+        except ParseError as e:
+            self.synchronize()
             return None
 
+    def var_declaration(self):
+        name = self.consume(TT.IDENTIFIER, "Expect variable name.")
+
+        initializer = None
+        if self.match(TT.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TT.SEMICOLON, "Expect ';' after variable declaration.")
+        return Stmt.Var(name, initializer)
+
+    def statement(self):
+        if self.match(TT.PRINT):
+            return self.print_statement()
+        elif self.match(TT.LEFT_BRACE):
+            return Stmt.Block(self.block())
+
+        return self.expression_statement()
+
+    def print_statement(self):
+        value = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after value.")
+        return Stmt.Print(value)
+
+    def expression_statement(self):
+        expr = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after expression.")
+        return Stmt.Expression(expr)
+
+    def block(self):
+        statements = []
+
+        while not self.check(TT.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+
+        self.consume(TT.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
+
     def expression(self):
-        return self.ternary()
+        return self.assignment()
+
+    def assignment(self):
+        expr = self.ternary()
+
+        if self.match(TT.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(expr, Expr.Variable):
+                name = expr.name
+                return Expr.Assign(name, value)
+            
+            self.error(equals, "Invalid assignment target.")
+
+        return expr
 
     def ternary(self):
         expr = self.equality()
@@ -82,6 +145,8 @@ class Parser():
             return Expr.Literal(None)
         elif self.match(TT.NUMBER, TT.STRING):
             return Expr.Literal(self.previous().literal)
+        elif self.match(TT.IDENTIFIER):
+            return Expr.Variable(self.previous())
         elif self.match(TT.LEFT_PAREN):
             expr = self.expression()
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")

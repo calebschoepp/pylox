@@ -44,12 +44,12 @@ class Lox():
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
         parser = Parser(tokens)
-        expression = parser.parse()
+        statements = parser.parse()
 
         if Lox.had_error:
             return
 
-        Lox.interpreter.interpret(expression)
+        Lox.interpreter.interpret(statements)
 
     @staticmethod
     def scan_error(line, message):

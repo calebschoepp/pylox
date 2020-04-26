@@ -1,15 +1,21 @@
 from token_type import TT
+from errors import RunTimeError
+from environment import Environment
+
 
 class Interpreter():
-    def interpret(self, expression):
+    def __init__(self):
+        self.environment = Environment(None)
+
+    def interpret(self, statements):
         from lox import Lox
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for stmt in statements:
+                self.execute(stmt)
         except RunTimeError as e:
             Lox.runtime_error(e)
         except:
-            Lox.runtime_error(RuntimeError(None, "Unknown failure."))
+            Lox.runtime_error(RunTimeError(None, "Unknown failure."))
 
     def visitLiteralExpr(self, expr):
         return expr.value
@@ -24,6 +30,9 @@ class Interpreter():
             return not self.is_truthy(right)
 
         return None
+
+    def visitVariableExpr(self, expr):
+        return self.environment.get(expr.name)
 
     def visitGroupingExpr(self, expr):
         return self.evaluate(expr.expression)
@@ -111,8 +120,42 @@ class Interpreter():
     def evaluate(self, expr):
         return expr.accept(self)
 
-class RunTimeError(Exception):
-    # TODO make more idiomatic to Python
-    def __init__(self, token, message):
-        super().__init__(message)
-        self.token = token
+    def execute(self, stmt):
+        stmt.accept(self)
+
+    def execute_block(self, statements, environment):
+        previous = self.environment
+
+        try:
+            self.environment = environment
+
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
+    def visitBlockStmt(self, stmt):
+        self.execute_block(stmt.statements, Environment(self.environment))
+
+    def visitExpressionStmt(self, stmt):
+        self.evaluate(stmt.expression)
+        return None
+
+    def visitPrintStmt(self, stmt):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+        return None
+
+    def visitVarStmt(self, stmt):
+        value = None
+        if stmt.initializer:
+            value = self.evaluate(stmt.initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
+        return None
+
+    def visitAssignExpr(self, expr):
+        value = self.evaluate(expr.value)
+
+        self.environment.assign(expr.name, value)
+        return value

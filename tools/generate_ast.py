@@ -6,11 +6,19 @@ def main(args):
         sys.exit(1)
     output_dir = args[1]
     define_ast(output_dir, "Expr", [
+        "Assign   : name, value",
         "Binary   : left, operator, right",
         "Grouping : expression",
         "Literal  : value",
         "Unary    : operator, right",
-        "Ternary  : expression, consequent, alternative"
+        "Ternary  : expression, consequent, alternative",
+        "Variable : name"
+    ])
+    define_ast(output_dir, "Stmt", [
+        "Block      : statements",
+        "Expression : expression",
+        "Print      : expression",
+        "Var        : name, initializer"
     ])
 
 def define_ast(output_dir, base_name, types):
