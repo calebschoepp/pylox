@@ -13,7 +13,17 @@ class Parser():
             return None
 
     def expression(self):
-        return self.equality()
+        return self.ternary()
+
+    def ternary(self):
+        expr = self.equality()
+        if not self.match(TT.QUESTION):
+            return expr
+        
+        consequent = self.ternary()
+        self.consume(TT.COLON, "Expect : before alternative of ternary.")
+        alternative = self.ternary()
+        return Expr.Ternary(expr, consequent, alternative)
 
     def equality(self):
         expr = self.comparison()

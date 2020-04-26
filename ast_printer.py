@@ -23,6 +23,9 @@ class AstPrinter():
     def visitUnaryExpr(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.right)
 
+    def visitTernaryExpr(self, expr):
+        return self.parenthesize("Ternary", expr.expression, expr.consequent, expr.alternative)
+
     def parenthesize(self, *args):
         # TODO improve error handling here
         out = "("

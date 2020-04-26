@@ -45,7 +45,10 @@ class Lox():
             return
 
         print(AstPrinter().print(expression))
-        
+
+        for token in tokens:
+            print(token)
+
     @staticmethod
     def scan_error(line, message):
         Lox.report(line, "", message)

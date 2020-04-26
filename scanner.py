@@ -63,6 +63,10 @@ class Scanner():
             self.add_token(TT.SEMICOLON, None)
         elif c == '*':
             self.add_token(TT.STAR, None)
+        elif c == "?":
+            self.add_token(TT.QUESTION, None)
+        elif c == ":":
+            self.add_token(TT.COLON, None)
         elif c == '!':
             self.add_token(TT.BANG_EQUAL if self.match('=') else TT.BANG, None)
         elif c == '=':

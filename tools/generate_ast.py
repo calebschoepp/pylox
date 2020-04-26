@@ -7,9 +7,10 @@ def main(args):
     output_dir = args[1]
     define_ast(output_dir, "Expr", [
         "Binary   : left, operator, right",
-        "Grouping : expression",                      
-        "Literal  : value",                         
-        "Unary    : operator, right"   
+        "Grouping : expression",
+        "Literal  : value",
+        "Unary    : operator, right",
+        "Ternary  : expression, consequent, alternative"
     ])
 
 def define_ast(output_dir, base_name, types):

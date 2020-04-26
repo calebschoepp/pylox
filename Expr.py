@@ -32,3 +32,12 @@ class Unary(Expr):
     def accept(self, visitor):
         return visitor.visitUnaryExpr(self)
 
+class Ternary(Expr):
+    def __init__(self, expression, consequent, alternative):
+        self.expression = expression
+        self.consequent = consequent
+        self.alternative = alternative
+
+    def accept(self, visitor):
+        return visitor.visitTernaryExpr(self)
+
