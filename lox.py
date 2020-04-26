@@ -1,7 +1,10 @@
 import sys
+from interpreter import Interpreter
 
 class Lox():
     had_error = False
+    had_runtime_error = False
+    interpreter = Interpreter()
 
     def __init__(self):
         pass
@@ -23,6 +26,8 @@ class Lox():
 
             if Lox.had_error:
                 sys.exit(65)
+            if Lox.had_runtime_error:
+                sys.exit(70)
 
     @staticmethod
     def run_prompt():
@@ -44,10 +49,7 @@ class Lox():
         if Lox.had_error:
             return
 
-        print(AstPrinter().print(expression))
-
-        for token in tokens:
-            print(token)
+        Lox.interpreter.interpret(expression)
 
     @staticmethod
     def scan_error(line, message):
@@ -64,6 +66,16 @@ class Lox():
             Lox.report(token.line, " at end", message)
         else:
             Lox.report(token.line, " at '" + token.lexeme + "'", message)
+
+    @staticmethod
+    def runtime_error(error):
+        if not hasattr(error, 'token'):
+            print("Unknown implementation error.")
+            Lox.had_runtime_error = True
+            return
+
+        print("{}\n[line {}]".format(error, error.token.line))
+        Lox.had_runtime_error = True
 
 if __name__ == "__main__":
     Lox.main(sys.argv)
