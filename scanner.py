@@ -90,7 +90,7 @@ class Scanner():
         elif self.is_alpha(c):
             self.identifier()
         else:
-            Lox.error(self.line, "Unexpected character.")
+            Lox.scan_error(self.line, "Unexpected character.")
 
     def identifier(self):
         while self.is_alpha_numeric(self.peek()):
@@ -126,7 +126,7 @@ class Scanner():
 
         # Unterminated string
         if self.is_at_end():
-            Lox.error(self.line, "Unterminated string.")
+            Lox.scan_error(self.line, "Unterminated string.")
             return
         
         # Closing "
@@ -144,11 +144,11 @@ class Scanner():
 
         # Unterminated block comment
         if self.is_at_end():
-            Lox.error(self.line, "Unterminated block comment.")
+            Lox.scan_error(self.line, "Unterminated block comment.")
 
         if self.peek() != '*' or self.peek_next() != '/':
             print("in here")
-            Lox.error(self.line, "Unterminated block comment.")
+            Lox.scan_error(self.line, "Unterminated block comment.")
 
         # Closing */
         self.advance()

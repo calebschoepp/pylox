@@ -34,19 +34,33 @@ class Lox():
     @staticmethod
     def run(source):
         from scanner import Scanner
+        from parser import Parser
+        from ast_printer import AstPrinter
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
+        parser = Parser(tokens)
+        expression = parser.parse()
 
-        for token in tokens:
-            print(token)
+        if Lox.had_error:
+            return
 
+        print(AstPrinter().print(expression))
+        
     @staticmethod
-    def error(line, message):
+    def scan_error(line, message):
         Lox.report(line, "", message)
 
     @staticmethod
     def report(line, where, message):
         print(f'[line {line}] Error {where}: {message}')
+
+    @staticmethod
+    def parse_error(token, message):
+        from token_type import TT
+        if token.type == TT.EOF:
+            Lox.report(token.line, " at end", message)
+        else:
+            Lox.report(token.line, " at '" + token.lexeme + "'", message)
 
 if __name__ == "__main__":
     Lox.main(sys.argv)
