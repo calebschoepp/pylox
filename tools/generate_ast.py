@@ -10,6 +10,7 @@ def main(args):
         "Binary   : left, operator, right",
         "Grouping : expression",
         "Literal  : value",
+        "Logical  : left, operator, right",
         "Unary    : operator, right",
         "Ternary  : expression, consequent, alternative",
         "Variable : name"
@@ -17,8 +18,10 @@ def main(args):
     define_ast(output_dir, "Stmt", [
         "Block      : statements",
         "Expression : expression",
+        "If         : condition, thenBranch, elseBranch",
         "Print      : expression",
-        "Var        : name, initializer"
+        "Var        : name, initializer",
+        "While      : condition, body"
     ])
 
 def define_ast(output_dir, base_name, types):
